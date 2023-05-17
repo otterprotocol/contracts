@@ -59,7 +59,7 @@ contract OtterManager is
         override
         onlyRole(OTTER_MANAGER)
     {
-        require(_newRate < MAX_RATE,"excceedes max rate");
+        require(1000<=_newRate && _newRate<= 9000,"excceedes max rate");
         emit SetWithdrawRate(_role, _withdrawRates[_role], _newRate);
         _withdrawRates[_role] = _newRate;
     }

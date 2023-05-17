@@ -70,7 +70,6 @@ contract Otter is IOtter, OtterManager {
     /// @param _name stream名称
     /// @param _capacity stream总量
     /// @param _raftsInStream stream中的raft数量和各自的份额
-    /// @param _expectedAPY 预期年收益
     /// @param _reserveRate 收益留存率
     /// @param _firstWithdrawRate 首次提取留存率
     /// @return steamId stream的唯一id
@@ -78,7 +77,6 @@ contract Otter is IOtter, OtterManager {
         string memory _name,
         uint256 _capacity,
         uint256[] memory _raftsInStream,
-        uint256 _expectedAPY,
         uint256 _reserveRate,
         uint256 _firstWithdrawRate
     ) public override returns (bytes32) {
@@ -88,7 +86,6 @@ contract Otter is IOtter, OtterManager {
             _organizer,
             _capacity,
             _raftsInStream,
-            _expectedAPY,
             _reserveRate,
             _firstWithdrawRate
         );
@@ -101,7 +98,6 @@ contract Otter is IOtter, OtterManager {
             _organizer,
             _capacity,
             _raftsInStream.length,
-            _expectedAPY,
             _reserveRate,
             _firstWithdrawRate
         );
@@ -115,7 +111,6 @@ contract Otter is IOtter, OtterManager {
         address _organizer,
         uint256 _capacity,
         uint256[] memory _raftsInStream,
-        uint256 _expectedAPY,
         uint256 _reserveRate,
         uint256 _firstWithdrawRate
     ) internal returns (bytes32) {
@@ -123,7 +118,6 @@ contract Otter is IOtter, OtterManager {
         require(_raftsInStream.length > 0, "raftcount must > 0");
         require(_raftsInStream.length <= MAX_RAFTS, "excceedes MAX_RAFTS(10)");
 
-        require(_expectedAPY != 0, "expected APY must bigger than zero");
         require(_reserveRate < MAX_RATE, "invalid reserve ratio");
         require(_firstWithdrawRate < MAX_RATE, "invalid first ratio");
 
@@ -164,7 +158,6 @@ contract Otter is IOtter, OtterManager {
         address _organizer,
         uint256 _capacity,
         uint256 _raftCount,
-        uint256 _expectedAPY,
         uint256 _reserveRate,
         uint256 _firstWithdrawRate
     ) internal {
@@ -178,7 +171,6 @@ contract Otter is IOtter, OtterManager {
         stream.currentJoinableRaft = 0;
         stream.totalRafts = _raftCount;
 
-        stream.expectedAPY = _expectedAPY;
         stream.reserveRate = _reserveRate;
         stream.firstWithdrawRate = _firstWithdrawRate;
 
@@ -265,7 +257,7 @@ contract Otter is IOtter, OtterManager {
             // 1. 计算当前时间相对周期开始时间，已经过了多久
             // 1.1 如果是最后一个结算周期,则计算当前时间和周期的开始时间差值,获得 elapsed days
             if (term.index == lastTerm.index) {
-                _days = (block.timestamp - lastTerm.startAt) / TIMELOCK_DAY;
+                _days = (block.timestamp - lastCalTime) / TIMELOCK_DAY;
                 lastCalTime = block.timestamp;
             } else {
                 // 1.2 如果不是最后一个计算周期,则通过周期结束时间和上一次结算的时间，获得elapsed days
@@ -332,7 +324,7 @@ contract Otter is IOtter, OtterManager {
         bytes32 _streamId,
         bytes32 _raftId,
         uint256 _amount
-    ) public override returns (uint256) {
+    ) public override returns (bool) {
         address investor = msg.sender;
 
         _transferToOtterContract(_amount);
@@ -370,7 +362,7 @@ contract Otter is IOtter, OtterManager {
 
         emit JoinStream(_streamId, _raftId, investor, _amount);
 
-        return investorCurrentConribution;
+        return true;
     }
 
     function _joinOnRaft(
