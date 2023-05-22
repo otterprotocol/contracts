@@ -335,7 +335,6 @@ contract Otter is IOtter, OtterManager {
         (
             RaftStatus status,
             uint256 currentContribution,
-            uint256 investorCurrentConribution
         ) = _joinOnRaft(_streamId, _raftId, investor, _amount);
 
         // increase stream's total contriution if Raft is Earning

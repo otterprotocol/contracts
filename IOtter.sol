@@ -131,7 +131,6 @@ interface IOtter is IOtterManager {
         string memory _name,
         uint256 _capacity,
         uint256[] memory _raftsInStream,
-        uint256 _expectedAPY,
         uint256 _reserveRatio,
         uint256 _firstWithdrawRate
     ) external returns (bytes32);
@@ -141,7 +140,7 @@ interface IOtter is IOtterManager {
         bytes32 _streamId,
         bytes32 _raftIndex,
         uint256 _amount
-    ) external returns (uint256);
+    ) external returns (bool);
 
     function exitStream(
         bytes32 _streamId,
