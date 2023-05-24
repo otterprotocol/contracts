@@ -256,7 +256,10 @@ contract Otter is IOtter, OtterManager {
             Term memory term = _streamTerms[_streamId][currCalTerm];
             // 1. 计算当前时间相对周期开始时间，已经过了多久
             // 1.1 如果是最后一个结算周期,则计算当前时间和周期的开始时间差值,获得 elapsed days
-            if (term.index == lastTerm.index) {
+            if(lastCalTime==0){
+                _days = (block.timestamp - term.startAt) / TIMELOCK_DAY;
+                lastCalTime = block.timestamp;
+            }else if (term.index == lastTerm.index) {
                 _days = (block.timestamp - lastCalTime) / TIMELOCK_DAY;
                 lastCalTime = block.timestamp;
             } else {
